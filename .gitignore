@@ -1,0 +1,38 @@
+# Logs
+*.log
+*.err.log
+logs/
+
+# Node modules and build files
+node_modules/
+dist/
+dist-ssr/
+frontend/node_modules/
+frontend/dist/
+
+# Python Virtual Environment
+venv/
+backend/venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Local environments / sensitive keys
+.env
+backend/.env
+.env.local
+.env.*.local
+
+# Databases & local data
+backend/data/
+db.sqlite3
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
