@@ -48,6 +48,152 @@ import AnalyticsPanel from './features/AnalyticsPanel';
 import api from './services/api';
 import type { CrawlSettings, CrawlStatus, SavedWebsite, AnalyticsData, ChatMessage } from './services/api';
 
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+}
+
+interface CanvasBackgroundProps {
+  isDarkMode: boolean;
+}
+
+const CanvasBackground: React.FC<CanvasBackgroundProps> = ({ isDarkMode }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let particles: Particle[] = [];
+    let mouse = { x: -1000, y: -1000 };
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initParticles();
+    };
+
+    const initParticles = () => {
+      particles = [];
+      const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 18000));
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          radius: Math.random() * 2.5 + 1.5, // Thicker particles (originally 0.8 - 2.6)
+        });
+      }
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+
+    resizeCanvas();
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Determine colors based on active theme
+      const particleColor = isDarkMode ? 'rgba(0, 242, 254, 0.45)' : 'rgba(13, 148, 136, 0.5)';
+      const lineColor = isDarkMode ? 'rgba(0, 242, 254, 0.12)' : 'rgba(13, 148, 136, 0.16)';
+      
+      ctx.fillStyle = particleColor;
+      ctx.strokeStyle = lineColor;
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = isDarkMode 
+              ? `rgba(0, 242, 254, ${0.16 * (1 - dist / 120)})` 
+              : `rgba(13, 148, 136, ${0.22 * (1 - dist / 120)})`;
+            ctx.lineWidth = isDarkMode ? 1.0 : 1.3;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        }
+
+        // Mouse hover interaction
+        const mdx = p.x - mouse.x;
+        const mdy = p.y - mouse.y;
+        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+        if (mdist < 150) {
+          ctx.beginPath();
+          ctx.strokeStyle = isDarkMode 
+            ? `rgba(0, 242, 254, ${0.35 * (1 - mdist / 150)})` 
+            : `rgba(13, 148, 136, ${0.42 * (1 - mdist / 150)})`;
+          ctx.lineWidth = isDarkMode ? 1.4 : 1.8;
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isDarkMode]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
+    />
+  );
+};
+
 export const App: React.FC = () => {
   const normalizeSettings = (value: CrawlSettings): CrawlSettings => {
     if (value.provider === 'gemini' && value.modelName?.startsWith('gemini-1.5-')) {
@@ -442,37 +588,52 @@ export const App: React.FC = () => {
           flexDirection="column" 
           flexGrow={1} 
           height="100%" 
-          sx={{ backgroundColor: 'background.default', overflow: 'hidden' }}
+          sx={{ backgroundColor: 'background.default', overflow: 'hidden', position: 'relative' }}
         >
+          <CanvasBackground isDarkMode={isDarkMode} />
+
           {/* Main Display routing */}
           {!activeTaskId ? (
             // 1. Landing Input screen
-            <Box flexGrow={1} overflow="auto" display="flex" flexDirection="column" justifyContent="center">
+            <Box 
+              flexGrow={1} 
+              overflow="auto" 
+              display="flex" 
+              flexDirection="column" 
+              justifyContent="center"
+              sx={{ position: 'relative', zIndex: 1 }}
+            >
               <Container maxWidth="md" sx={{ py: 6 }}>
                 {/* Logo & Headline */}
-                <Box textAlign="center" mb={6}>
-                  <Box 
-                    display="inline-flex" 
-                    justifyContent="center" 
-                    alignItems="center"
-                    sx={{
-                      width: 72,
-                      height: 72,
-                      borderRadius: 4,
-                      background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                      color: (theme) => theme.palette.primary.contrastText,
-                      boxShadow: (theme) => theme.palette.mode === 'light'
-                        ? '0 8px 30px rgba(217, 0, 0, 0.3)'
-                        : '0 8px 30px rgba(141, 179, 85, 0.3)',
+                <Box textAlign="center" mb={5}>
+                  <Typography 
+                    variant="h1" 
+                    fontWeight="800" 
+                    sx={{ 
+                      fontSize: { xs: '2.5rem', md: '3.5rem' },
+                      letterSpacing: '-0.04em',
+                      background: (theme) => theme.palette.mode === 'light'
+                        ? 'linear-gradient(135deg, #111827 0%, #0d9488 100%)'
+                        : 'linear-gradient(135deg, #ffffff 10%, #f4f4f5 50%, #00f2fe 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
                       mb: 2.5
                     }}
                   >
-                    <Language sx={{ fontSize: 38 }} />
-                  </Box>
-                  <Typography variant="h2" fontWeight="800" sx={{ letterSpacing: '-0.03em' }} gutterBottom>
                     Chat with Any Website
                   </Typography>
-                  <Typography variant="h5" color="text.secondary" fontWeight="normal" sx={{ opacity: 0.85 }}>
+                  <Typography 
+                    variant="h5" 
+                    color="text.secondary" 
+                    fontWeight="normal" 
+                    sx={{ 
+                      maxWidth: '600px', 
+                      mx: 'auto', 
+                      lineHeight: 1.6,
+                      opacity: 0.8,
+                      fontSize: { xs: '1.05rem', md: '1.2rem' } 
+                    }}
+                  >
                     Paste a URL, automatically extract content, and perform conversational semantic search.
                   </Typography>
                 </Box>
@@ -481,17 +642,29 @@ export const App: React.FC = () => {
                 <Paper 
                   elevation={0}
                   sx={{ 
-                    p: 1.5, 
-                    borderRadius: 5, 
+                    p: 1, 
+                    borderRadius: '20px', 
                     border: '1px solid',
                     borderColor: 'divider',
                     display: 'flex',
                     alignItems: 'center',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
-                    mb: 4
+                    backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(24, 24, 27, 0.4)',
+                    backdropFilter: 'blur(16px)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    boxShadow: 'none',
+                    maxWidth: '620px',
+                    width: '100%',
+                    mx: 'auto',
+                    mb: 5,
+                    '&:focus-within': {
+                      borderColor: 'primary.main',
+                      boxShadow: (theme) => theme.palette.mode === 'light'
+                        ? '0 0 25px rgba(13, 148, 136, 0.15)'
+                        : '0 0 25px rgba(0, 242, 254, 0.25)',
+                    }
                   }}
                 >
-                  <Language sx={{ color: 'text.secondary', mx: 1.5 }} />
+                  <Language sx={{ color: 'text.secondary', mx: 2 }} />
                   <TextField
                     fullWidth
                     variant="standard"
@@ -500,14 +673,26 @@ export const App: React.FC = () => {
                     onChange={(e) => setUrlInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleStartIndexing()}
                     InputProps={{ disableUnderline: true }}
-                    sx={{ flexGrow: 1 }}
+                    sx={{ 
+                      flexGrow: 1,
+                      input: {
+                        fontSize: '0.95rem',
+                        py: 1.5
+                      }
+                    }}
                   />
                   <Button
                     variant="contained"
                     size="large"
                     endIcon={<KeyboardArrowRight />}
                     onClick={handleStartIndexing}
-                    sx={{ borderRadius: 4, px: 3, height: 48 }}
+                    sx={{ 
+                      borderRadius: '14px', 
+                      px: 4, 
+                      height: 48,
+                      fontWeight: 'bold',
+                      boxShadow: (theme) => theme.palette.mode === 'light' ? 'none' : '0 4px 15px rgba(0, 242, 254, 0.2)'
+                    }}
                   >
                     Scrape & Chat
                   </Button>
@@ -525,11 +710,11 @@ export const App: React.FC = () => {
                 <Grid container spacing={3}>
                   <Grid item xs={12} sm={4}>
                     <Card sx={{ height: '100%' }}>
-                      <CardContent>
-                        <Typography variant="subtitle2" fontWeight="bold" color="primary" gutterBottom>
+                      <CardContent sx={{ p: '24px !important' }}>
+                        <Typography variant="subtitle1" fontWeight="bold" color="primary.main" gutterBottom>
                           Sitemap Trees
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.85 }}>
                           Automatically resolves relative path domains to construct linked site visualizers.
                         </Typography>
                       </CardContent>
@@ -537,11 +722,11 @@ export const App: React.FC = () => {
                   </Grid>
                   <Grid item xs={12} sm={4}>
                     <Card sx={{ height: '100%' }}>
-                      <CardContent>
-                        <Typography variant="subtitle2" fontWeight="bold" color="secondary" gutterBottom>
+                      <CardContent sx={{ p: '24px !important' }}>
+                        <Typography variant="subtitle1" fontWeight="bold" color="secondary.main" gutterBottom>
                           No Hallucinations
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.85 }}>
                           Chat queries search vector stores using strict cosine similarities, skipping headers/styles.
                         </Typography>
                       </CardContent>
@@ -549,11 +734,16 @@ export const App: React.FC = () => {
                   </Grid>
                   <Grid item xs={12} sm={4}>
                     <Card sx={{ height: '100%' }}>
-                      <CardContent>
-                        <Typography variant="subtitle2" fontWeight="bold" color="success.main" gutterBottom>
+                      <CardContent sx={{ p: '24px !important' }}>
+                        <Typography 
+                          variant="subtitle1" 
+                          fontWeight="bold" 
+                          sx={{ color: (theme) => theme.palette.mode === 'light' ? '#0d9488' : '#10b981' }} 
+                          gutterBottom
+                        >
                           Metadata Reports
                         </Typography>
-                        <Typography variant="caption" color="text.secondary">
+                        <Typography variant="body2" color="text.secondary" sx={{ opacity: 0.85 }}>
                           Instantly extracts FAQs, company info profiles, and email/phone directories.
                         </Typography>
                       </CardContent>
@@ -564,12 +754,26 @@ export const App: React.FC = () => {
             </Box>
           ) : isCrawlRunning ? (
             // 2. Crawler status checklist screen
-            <Box flexGrow={1} overflow="auto" display="flex" alignItems="center" px={2}>
+            <Box 
+              flexGrow={1} 
+              overflow="auto" 
+              display="flex" 
+              alignItems="center" 
+              px={2}
+              sx={{ position: 'relative', zIndex: 1 }}
+            >
               <CrawlProgress statusData={crawlStatus!} />
             </Box>
           ) : isCrawlFailed ? (
             // 3. Failed scrape notice screen
-            <Box flexGrow={1} overflow="auto" display="flex" alignItems="center" justifyContent="center">
+            <Box 
+              flexGrow={1} 
+              overflow="auto" 
+              display="flex" 
+              alignItems="center" 
+              justifyContent="center"
+              sx={{ position: 'relative', zIndex: 1 }}
+            >
               <Container maxWidth="sm" sx={{ py: 6 }}>
                 <Alert severity="error" sx={{ borderRadius: 4, p: 3 }}>
                   <AlertTitle sx={{ fontWeight: 'bold', fontSize: 18 }}>Scraping and Indexing Failed</AlertTitle>
@@ -603,7 +807,14 @@ export const App: React.FC = () => {
             </Box>
           ) : (
             // 4. Completed chat panel dashboard
-            <Box display="flex" flexDirection="column" height="100%" overflow="hidden" p={3}>
+            <Box 
+              display="flex" 
+              flexDirection="column" 
+              height="100%" 
+              overflow="hidden" 
+              p={3}
+              sx={{ position: 'relative', zIndex: 1 }}
+            >
               {/* Site Details & View Controller Tabs */}
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Box>

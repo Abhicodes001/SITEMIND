@@ -1,17 +1,17 @@
 import { createTheme } from '@mui/material/styles';
 
 export const getTheme = (mode: 'light' | 'dark') => {
-  const primaryMain = mode === 'light' ? '#D90000' : '#8DB355';
-  const primaryLight = mode === 'light' ? '#FF4D4D' : '#AFD476';
-  const primaryDark = mode === 'light' ? '#A30000' : '#6D913A';
+  const primaryMain = mode === 'light' ? '#0d9488' : '#00f2fe';
+  const primaryLight = mode === 'light' ? '#14b8a6' : '#73f7ff';
+  const primaryDark = mode === 'light' ? '#0f766e' : '#00a3ab';
   
-  const secondaryMain = mode === 'light' ? '#FFEA93' : '#000000';
-  const secondaryLight = mode === 'light' ? '#FFF2C2' : '#222222';
-  const secondaryDark = mode === 'light' ? '#CCA43B' : '#000000';
+  const secondaryMain = mode === 'light' ? '#0284c7' : '#4facfe';
+  const secondaryLight = mode === 'light' ? '#38bdf8' : '#8cd0ff';
+  const secondaryDark = mode === 'light' ? '#0369a1' : '#007cc7';
 
-  const bgDefault = mode === 'light' ? '#FAFAFA' : '#000000';
-  const bgPaper = mode === 'light' ? '#FFFFFF' : '#000000';
-  const sidebarBg = mode === 'light' ? '#F3F4F6' : '#000000';
+  const bgDefault = mode === 'light' ? '#f9fafb' : '#09090b';
+  const bgPaper = mode === 'light' ? '#ffffff' : '#18181b';
+  const sidebarBg = mode === 'light' ? '#f3f4f6' : 'rgba(9, 9, 11, 0.5)';
 
   return createTheme({
     palette: {
@@ -20,39 +20,40 @@ export const getTheme = (mode: 'light' | 'dark') => {
         main: primaryMain,
         light: primaryLight,
         dark: primaryDark,
-        contrastText: mode === 'light' ? '#FFFFFF' : '#000000',
+        contrastText: mode === 'light' ? '#FFFFFF' : '#09090b',
       },
       secondary: {
         main: secondaryMain,
         light: secondaryLight,
         dark: secondaryDark,
-        contrastText: mode === 'light' ? '#111827' : '#FFFFFF',
+        contrastText: '#FFFFFF',
       },
       background: {
         default: bgDefault,
         paper: bgPaper,
       },
       text: {
-        primary: mode === 'light' ? '#111827' : '#F9FAFB',
-        secondary: mode === 'light' ? '#4B5563' : '#9CA3AF',
+        primary: mode === 'light' ? '#111827' : '#f4f4f5',
+        secondary: mode === 'light' ? '#4b5563' : '#a1a1aa',
       },
       divider: mode === 'light' ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)',
     },
     typography: {
       fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
       h1: {
-        fontWeight: 700,
+        fontWeight: 800,
         fontSize: '2.5rem',
-        letterSpacing: '-0.02em',
+        letterSpacing: '-0.03em',
       },
       h2: {
-        fontWeight: 700,
+        fontWeight: 800,
         fontSize: '2rem',
-        letterSpacing: '-0.01em',
+        letterSpacing: '-0.02em',
       },
       h3: {
-        fontWeight: 600,
+        fontWeight: 700,
         fontSize: '1.5rem',
+        letterSpacing: '-0.01em',
       },
       h4: {
         fontWeight: 600,
@@ -76,7 +77,7 @@ export const getTheme = (mode: 'light' | 'dark') => {
       },
       button: {
         textTransform: 'none',
-        fontWeight: 500,
+        fontWeight: 600,
       },
     },
     shape: {
@@ -86,38 +87,37 @@ export const getTheme = (mode: 'light' | 'dark') => {
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: '10px',
-            padding: '8px 16px',
+            borderRadius: '12px',
+            padding: '10px 20px',
             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             boxShadow: 'none',
             '&.MuiButton-containedPrimary': {
               background: mode === 'light'
                 ? `linear-gradient(135deg, ${primaryMain} 0%, ${primaryLight} 100%)`
-                : `linear-gradient(135deg, ${primaryMain} 0%, ${primaryLight} 100%)`,
-              color: mode === 'light' ? '#FFFFFF' : '#000000',
+                : `linear-gradient(135deg, ${primaryMain} 0%, ${secondaryMain} 100%)`,
+              color: mode === 'light' ? '#FFFFFF' : '#09090b',
               '&:hover': {
                 background: mode === 'light'
                   ? `linear-gradient(135deg, ${primaryDark} 0%, ${primaryMain} 100%)`
-                  : `linear-gradient(135deg, ${primaryDark} 0%, ${primaryMain} 100%)`,
+                  : `linear-gradient(135deg, ${primaryLight} 0%, ${primaryMain} 100%)`,
                 boxShadow: mode === 'light'
-                  ? '0 6px 20px rgba(217, 0, 0, 0.25)'
-                  : '0 6px 20px rgba(141, 179, 85, 0.25)',
+                  ? '0 6px 20px rgba(13, 148, 136, 0.25)'
+                  : '0 6px 20px rgba(0, 242, 254, 0.35)',
               },
             },
             '&.MuiButton-containedSecondary': {
               background: mode === 'light'
                 ? `linear-gradient(135deg, ${secondaryMain} 0%, ${secondaryLight} 100%)`
                 : `linear-gradient(135deg, ${secondaryMain} 0%, ${secondaryLight} 100%)`,
-              color: mode === 'light' ? '#111827' : '#FFFFFF',
-              border: mode === 'light' ? 'none' : '1px solid rgba(255, 255, 255, 0.2)',
+              color: '#FFFFFF',
+              border: mode === 'light' ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
               '&:hover': {
                 background: mode === 'light'
                   ? `linear-gradient(135deg, ${secondaryDark} 0%, ${secondaryMain} 100%)`
-                  : `linear-gradient(135deg, #111111 0%, #000000 100%)`,
+                  : `linear-gradient(135deg, ${secondaryDark} 0%, ${secondaryMain} 100%)`,
                 boxShadow: mode === 'light'
-                  ? '0 6px 20px rgba(255, 234, 147, 0.25)'
-                  : '0 6px 20px rgba(0, 0, 0, 0.25)',
-                borderColor: mode === 'light' ? 'transparent' : 'rgba(255, 255, 255, 0.4)',
+                  ? '0 6px 20px rgba(2, 132, 199, 0.25)'
+                  : '0 6px 20px rgba(79, 172, 254, 0.25)',
               },
             },
           },
@@ -129,17 +129,17 @@ export const getTheme = (mode: 'light' | 'dark') => {
             borderRadius: '16px',
             backdropFilter: 'blur(12px)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            border: mode === 'light' ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.05)',
-            backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.6)',
+            border: mode === 'light' ? '1px solid rgba(0, 0, 0, 0.05)' : '1px solid rgba(255, 255, 255, 0.06)',
+            backgroundColor: mode === 'light' ? 'rgba(255, 255, 255, 0.7)' : 'rgba(24, 24, 27, 0.4)',
             boxShadow: mode === 'light' 
-              ? '0 4px 20px -2px rgba(0, 0, 0, 0.03), 0 2px 8px -1px rgba(0, 0, 0, 0.02)'
-              : '0 4px 20px -2px rgba(0, 0, 0, 0.2), 0 2px 8px -1px rgba(0, 0, 0, 0.1)',
+              ? '0 4px 20px -2px rgba(0, 0, 0, 0.02)'
+              : '0 4px 30px rgba(0, 0, 0, 0.2)',
             '&:hover': {
               transform: 'translateY(-2px)',
               boxShadow: mode === 'light'
-                ? '0 12px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)'
-                : '0 12px 30px -4px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.2)',
-              borderColor: mode === 'light' ? 'rgba(217, 0, 0, 0.2)' : 'rgba(141, 179, 85, 0.2)',
+                ? '0 12px 30px -4px rgba(13, 148, 136, 0.12)'
+                : '0 12px 30px -4px rgba(0, 242, 254, 0.15)',
+              borderColor: mode === 'light' ? 'rgba(13, 148, 136, 0.3)' : 'rgba(0, 242, 254, 0.3)',
             },
           },
         },
@@ -149,6 +149,7 @@ export const getTheme = (mode: 'light' | 'dark') => {
           paper: {
             borderRight: mode === 'light' ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
             backgroundColor: sidebarBg,
+            backdropFilter: 'blur(16px)',
           },
         },
       },
@@ -156,13 +157,14 @@ export const getTheme = (mode: 'light' | 'dark') => {
         styleOverrides: {
           root: {
             '& .MuiOutlinedInput-root': {
-              borderRadius: '10px',
+              borderRadius: '12px',
               transition: 'all 0.2s',
+              backgroundColor: mode === 'light' ? 'rgba(255,255,255,0.8)' : 'rgba(9,9,11,0.4)',
               '& fieldset': {
-                borderColor: mode === 'light' ? 'rgba(0, 0, 0, 0.15)' : 'rgba(255, 255, 255, 0.15)',
+                borderColor: mode === 'light' ? 'rgba(0, 0, 0, 0.12)' : 'rgba(255, 255, 255, 0.08)',
               },
               '&:hover fieldset': {
-                borderColor: mode === 'light' ? 'rgba(217, 0, 0, 0.5)' : 'rgba(141, 179, 85, 0.5)',
+                borderColor: mode === 'light' ? 'rgba(13, 148, 136, 0.4)' : 'rgba(0, 242, 254, 0.4)',
               },
               '&.Mui-focused fieldset': {
                 borderColor: primaryMain,
@@ -171,7 +173,28 @@ export const getTheme = (mode: 'light' | 'dark') => {
           },
         },
       },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: mode === 'light' ? '#ffffff' : '#18181b',
+            backgroundImage: 'none',
+            border: mode === 'light' ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          },
+        },
+      },
+      MuiPopover: {
+        styleOverrides: {
+          paper: {
+            backgroundColor: mode === 'light' ? '#ffffff' : '#18181b',
+            backgroundImage: 'none',
+            border: mode === 'light' ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.08)',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
+          },
+        },
+      },
     },
   });
 };
 export default getTheme;
+

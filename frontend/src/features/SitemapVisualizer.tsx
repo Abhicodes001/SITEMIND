@@ -258,10 +258,10 @@ export const SitemapVisualizer: React.FC<SitemapVisualizerProps> = ({ sitemap })
                       key={idx}
                       d={pathD}
                       fill="none"
-                      stroke="#818CF8"
+                      stroke={theme.palette.primary.main}
                       strokeWidth="2"
                       strokeDasharray="4 4"
-                      opacity="0.6"
+                      opacity="0.7"
                     />
                   );
                 })}
