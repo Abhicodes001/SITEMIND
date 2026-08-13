@@ -11,7 +11,7 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 Finding information on large websites can be frustrating. Search bars often miss relevant content, and manually browsing multiple pages is time-consuming.
 
@@ -29,15 +29,15 @@ The AI answers **only using the website's content**, reducing hallucinations and
 
 ---
 
-# ✨ Features
+#  Features
 
-### 🌍 Website Crawling
+###  Website Crawling
 - Crawl an entire website recursively
 - Intelligent internal link discovery
 - Configurable crawl depth
 - Duplicate page detection
 
-### 🧠 Smart Content Extraction
+###  Smart Content Extraction
 - Removes:
   - Navigation bars
   - Headers & Footers
@@ -46,13 +46,13 @@ The AI answers **only using the website's content**, reducing hallucinations and
   - Popups
 - Extracts only meaningful textual information
 
-### 📄 Intelligent Chunking
+###  Intelligent Chunking
 - Semantic text chunking
 - Context preservation
 - Optimized chunk sizes
 - Metadata generation
 
-### 🔍 Vector Search (RAG)
+### Vector Search (RAG)
 - High-quality embeddings
 - Semantic similarity search
 - Fast document retrieval
