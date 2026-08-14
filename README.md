@@ -58,26 +58,26 @@ The AI answers **only using the website's content**, reducing hallucinations and
 - Fast document retrieval
 - Context-aware search
 
-### 🤖 AI Chat
+### AI Chat
 - Natural conversations
 - Multi-turn memory
 - Context-aware answers
 - Source citations
 - No hallucinations
 
-### 🔐 Authentication
+###  Authentication
 - User Login
 - Signup
 - Secure sessions
 - Personal chat history
 
-### 📚 Chat History
+###  Chat History
 - Save conversations
 - Resume previous chats
 - Delete conversations
 - Search previous sessions
 
-### 🎨 Modern UI
+###  Modern UI
 - Responsive Design
 - Dark / Light Theme
 - Smooth animations
@@ -86,7 +86,7 @@ The AI answers **only using the website's content**, reducing hallucinations and
 
 ---
 
-# 🏗️ Architecture
+#  Architecture
 
 ```
               Website URL
