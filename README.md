@@ -118,7 +118,7 @@ The AI answers **only using the website's content**, reducing hallucinations and
 
 ---
 
-# 🛠️ Tech Stack
+#  Tech Stack
 
 ## Frontend
 
@@ -153,7 +153,7 @@ The AI answers **only using the website's content**, reducing hallucinations and
 
 ---
 
-# ⚙️ How It Works
+#  How It Works
 
 ## Step 1
 
@@ -272,7 +272,7 @@ Accurate Answer
 
 ---
 
-# 💡 Example Questions
+#  Example Questions
 
 - What services does this company provide?
 - Summarize the homepage.
@@ -286,7 +286,7 @@ Accurate Answer
 
 ---
 
-# 📂 Project Structure
+#  Project Structure
 
 ```
 SiteMind-AI/
