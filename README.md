@@ -317,7 +317,7 @@ SiteMind-AI/
 
 ---
 
-# 🚀 Installation
+# Installation
 
 ## Clone Repository
 
@@ -358,7 +358,7 @@ npm run dev
 
 ---
 
-# 🔑 Environment Variables
+# Environment Variables
 
 Create a `.env` file.
 
@@ -378,7 +378,7 @@ DATABASE_URL=
 
 ---
 
-# 🎯 Future Enhancements
+# Future Enhancements
 
 - PDF Upload Support
 - Website Comparison
@@ -393,7 +393,7 @@ DATABASE_URL=
 
 ---
 
-# 🎓 Use Cases
+# Use Cases
 
 - Students
 - Researchers
