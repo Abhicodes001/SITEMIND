@@ -15,7 +15,7 @@ import {
 import { RotateLeft } from '@mui/icons-material';
 import type { CrawlSettings } from '../services/api';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.5-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
 
 interface SettingsProps {
   settings: CrawlSettings;
@@ -111,16 +111,20 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
                 >
                   {settings.provider === 'openai' && [
                     <MenuItem key="gpt4om" value="gpt-4o-mini">gpt-4o-mini (Recommended)</MenuItem>,
-                    <MenuItem key="gpt4o" value="gpt-4o">gpt-4o</MenuItem>
+                    <MenuItem key="gpt4o" value="gpt-4o">gpt-4o</MenuItem>,
+                    <MenuItem key="o3mini" value="o3-mini">o3-mini (Reasoning)</MenuItem>
                   ]}
                   {settings.provider === 'groq' && [
                     <MenuItem key="llama70" value="llama-3.3-70b-versatile">llama-3.3-70b (Recommended)</MenuItem>,
-                    <MenuItem key="llama8" value="llama3-8b-8192">llama3-8b-8192</MenuItem>
+                    <MenuItem key="llama8" value="llama-3.1-8b-instant">llama-3.1-8b-instant</MenuItem>,
+                    <MenuItem key="mixtral" value="mixtral-8x7b-32768">mixtral-8x7b-32768</MenuItem>,
+                    <MenuItem key="gemma2" value="gemma2-9b-it">gemma2-9b-it</MenuItem>
                   ]}
                   {settings.provider === 'gemini' && [
-                    <MenuItem key="gemini35f" value="gemini-3.5-flash">gemini-3.5-flash (Recommended)</MenuItem>,
-                    <MenuItem key="gemini25f" value="gemini-2.5-flash">gemini-2.5-flash</MenuItem>,
-                    <MenuItem key="geminiflashlatest" value="gemini-flash-latest">gemini-flash-latest</MenuItem>
+                    <MenuItem key="gemini20f" value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</MenuItem>,
+                    <MenuItem key="gemini15f" value="gemini-1.5-flash">gemini-1.5-flash</MenuItem>,
+                    <MenuItem key="gemini15p" value="gemini-1.5-pro">gemini-1.5-pro</MenuItem>,
+                    <MenuItem key="gemini20lite" value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</MenuItem>
                   ]}
                 </Select>
               </FormControl>

@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     # Default Models
     DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
     DEFAULT_GROQ_MODEL: str = "llama-3.3-70b-versatile"
-    DEFAULT_GEMINI_MODEL: str = "gemini-3.5-flash"
+    DEFAULT_GEMINI_MODEL: str = "gemini-2.0-flash"
     
     # Default Crawling Configuration
     DEFAULT_MAX_DEPTH: int = 3

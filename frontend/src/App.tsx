@@ -196,7 +196,10 @@ const CanvasBackground: React.FC<CanvasBackgroundProps> = ({ isDarkMode }) => {
 
 export const App: React.FC = () => {
   const normalizeSettings = (value: CrawlSettings): CrawlSettings => {
-    if (value.provider === 'gemini' && value.modelName?.startsWith('gemini-1.5-')) {
+    if (
+      value.provider === 'gemini' &&
+      (value.modelName === 'gemini-3.5-flash' || value.modelName === 'gemini-2.5-flash' || value.modelName === 'gemini-flash-latest' || !value.modelName)
+    ) {
       return { ...value, modelName: DEFAULT_GEMINI_MODEL };
     }
     return value;
