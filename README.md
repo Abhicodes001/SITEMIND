@@ -413,7 +413,7 @@ Coming Soon...
 
 ---
 
-# 🤝 Contributing
+#  Contributing
 
 Contributions are welcome!
 
@@ -425,13 +425,13 @@ Contributions are welcome!
 
 ---
 
-# 📜 License
+#  License
 
 This project is licensed under the MIT License.
 
 ---
 
-# 👨‍💻 Author
+#  Author
 
 **Abhishek M Nair**
 
