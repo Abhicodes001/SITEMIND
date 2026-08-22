@@ -123,9 +123,10 @@ class CustomEmbeddingWrapper:
         if provider == "local":
             try:
                 from sentence_transformers import SentenceTransformer
-                # Use a fast, small, high-quality open embedding
-                self._model = SentenceTransformer('all-MiniLM-L6-v2')
-                logger.info("Initialized local SentenceTransformer: all-MiniLM-L6-v2")
+                # Use a fast, high-accuracy open embedding model (BAAI BGE Small v1.5)
+                model_name = settings.DEFAULT_EMBEDDING_MODEL
+                self._model = SentenceTransformer(model_name)
+                logger.info(f"Initialized local SentenceTransformer embedding model: {model_name}")
             except Exception as e:
                 logger.error(f"Failed to load sentence-transformers: {e}. Vector search will fail unless an API provider is used.")
                 

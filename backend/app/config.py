@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     DEFAULT_GROQ_MODEL: str = "llama-3.3-70b-versatile"
     DEFAULT_GEMINI_MODEL: str = "gemini-2.0-flash"
     DEFAULT_OLLAMA_MODEL: str = "llama3.2"
+    DEFAULT_EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
     
     # Default Crawling Configuration
     DEFAULT_MAX_DEPTH: int = 3
