@@ -50,6 +50,7 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
       if (value === 'openai') newSettings.modelName = 'gpt-4o-mini';
       else if (value === 'groq') newSettings.modelName = 'llama-3.3-70b-versatile';
       else if (value === 'gemini') newSettings.modelName = DEFAULT_GEMINI_MODEL;
+      else if (value === 'ollama') newSettings.modelName = 'llama3.2';
       else newSettings.modelName = '';
     }
     
@@ -99,6 +100,7 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
                   <MenuItem value="gemini">Google Gemini</MenuItem>
                   <MenuItem value="groq">Groq Llama 3.3</MenuItem>
                   <MenuItem value="openai">OpenAI GPT-4</MenuItem>
+                  <MenuItem value="ollama">Ollama (Local LLM)</MenuItem>
                 </Select>
               </FormControl>
 
@@ -125,6 +127,14 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
                     <MenuItem key="gemini15f" value="gemini-1.5-flash">gemini-1.5-flash</MenuItem>,
                     <MenuItem key="gemini15p" value="gemini-1.5-pro">gemini-1.5-pro</MenuItem>,
                     <MenuItem key="gemini20lite" value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</MenuItem>
+                  ]}
+                  {settings.provider === 'ollama' && [
+                    <MenuItem key="llama32" value="llama3.2">llama3.2 (Recommended)</MenuItem>,
+                    <MenuItem key="llama31" value="llama3.1">llama3.1</MenuItem>,
+                    <MenuItem key="mistral" value="mistral">mistral</MenuItem>,
+                    <MenuItem key="gemma2local" value="gemma2">gemma2</MenuItem>,
+                    <MenuItem key="phi3" value="phi3">phi3</MenuItem>,
+                    <MenuItem key="qwen25" value="qwen2.5">qwen2.5</MenuItem>
                   ]}
                 </Select>
               </FormControl>

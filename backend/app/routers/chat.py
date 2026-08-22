@@ -65,8 +65,6 @@ async def chat_endpoint(request: ChatRequest):
     # and use it as a fallback provider.
     if provider == "local":
         if request.api_key:
-            # If a key is passed, we can guess the provider based on key format or check if there is an active setting
-            # But the UI will pass the provider. Let's select Gemini or Groq or OpenAI depending on what key is in backend config.
             if settings.GEMINI_API_KEY:
                 provider = "gemini"
             elif settings.GROQ_API_KEY:
@@ -74,12 +72,8 @@ async def chat_endpoint(request: ChatRequest):
             elif settings.OPENAI_API_KEY:
                 provider = "openai"
             else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Please select a valid LLM provider (Gemini, Groq, OpenAI) and input your API key."
-                )
+                provider = "ollama"
         else:
-            # Check backend keys
             if settings.GEMINI_API_KEY:
                 provider = "gemini"
             elif settings.GROQ_API_KEY:
@@ -87,10 +81,7 @@ async def chat_endpoint(request: ChatRequest):
             elif settings.OPENAI_API_KEY:
                 provider = "openai"
             else:
-                raise HTTPException(
-                    status_code=400,
-                    detail="No AI model provider is configured. Please provide an API key in settings."
-                )
+                provider = "ollama"
                 
     # 3. Stream back the RAG chat generation
     generator = stream_chat_response(

@@ -5,7 +5,7 @@ export interface CrawlSettings {
   maxPages: number;
   chunkSize: number;
   chunkOverlap: number;
-  provider: string; // openai, groq, gemini
+  provider: string; // openai, groq, gemini, ollama
   modelName?: string;
   temperature: number;
   topK: number;

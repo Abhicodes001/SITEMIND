@@ -16,11 +16,13 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
     
     # Default Models
     DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
     DEFAULT_GROQ_MODEL: str = "llama-3.3-70b-versatile"
     DEFAULT_GEMINI_MODEL: str = "gemini-2.0-flash"
+    DEFAULT_OLLAMA_MODEL: str = "llama3.2"
     
     # Default Crawling Configuration
     DEFAULT_MAX_DEPTH: int = 3

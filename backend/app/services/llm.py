@@ -59,6 +59,20 @@ def get_chat_model(
             streaming=True
         )
         
+    elif provider == "ollama":
+        try:
+            from langchain_community.chat_models import ChatOllama
+        except ImportError:
+            from langchain_ollama import ChatOllama
+            
+        model = model_name or settings.DEFAULT_OLLAMA_MODEL
+        logger.info(f"Initializing ChatOllama model: {model} at base URL {settings.OLLAMA_BASE_URL}")
+        return ChatOllama(
+            base_url=settings.OLLAMA_BASE_URL,
+            model=model,
+            temperature=temperature
+        )
+        
     else:
         raise ValueError(f"Unsupported AI provider: {provider}")
 
