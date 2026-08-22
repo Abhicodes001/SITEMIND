@@ -3,10 +3,39 @@ import json
 import logging
 from typing import List, Dict, Any, Optional
 from urllib.parse import urlparse
+from pydantic import BaseModel, Field
 from app.services.llm import get_chat_model
 from langchain_core.messages import HumanMessage, SystemMessage
 
 logger = logging.getLogger("sitemind.analyzer")
+
+
+class CompanyDetailsModel(BaseModel):
+    name: str = Field(..., description="Company or website name")
+    industry: str = Field(..., description="Industry sector (e.g., SaaS, E-commerce, Blog, Non-profit)")
+    mission: str = Field(default="", description="Mission statement or core objective if present")
+    description: str = Field(..., description="Short description of the company values and offerings")
+
+
+class FAQItemModel(BaseModel):
+    question: str = Field(..., description="FAQ Question")
+    answer: str = Field(..., description="FAQ Answer")
+
+
+class ContactDetailsModel(BaseModel):
+    emails: List[str] = Field(default_factory=list, description="Extracted contact email addresses")
+    phones: List[str] = Field(default_factory=list, description="Extracted contact phone numbers")
+    address: str = Field(default="", description="Physical office address if present")
+    social_links: List[str] = Field(default_factory=list, description="Social media profile links")
+
+
+class WebsiteAnalysisSchema(BaseModel):
+    summary: str = Field(..., description="Concise paragraph summary of what this website or business is about")
+    company_details: CompanyDetailsModel
+    key_insights: List[str] = Field(..., description="List of key structural insights, main offerings, or target audience details")
+    faqs: List[FAQItemModel] = Field(default_factory=list, description="Frequently asked questions extracted or inferred from website content")
+    contact_details: ContactDetailsModel
+
 
 def generate_sitemap_tree(urls: List[str]) -> Dict[str, Any]:
     """
@@ -111,10 +140,10 @@ async def analyze_website_content(
 ) -> Dict[str, Any]:
     """
     Extracts summary, FAQs, key insights, company details and contacts using LLM analysis.
+    Uses Pydantic structured output with fallback parsing.
     """
     # 1. Gather sample text from the main pages (e.g., home and about pages, up to 10k chars total)
     sample_text = ""
-    # Look for home page, about page, contact page first
     urls = list(crawl_results.keys())
     
     preferred_urls = []
@@ -140,34 +169,7 @@ async def analyze_website_content(
     # 2. Build analysis query for LLM
     prompt = (
         "You are an expert business analyst and research agent. Analyze the following scraped content "
-        "from a website and extract structural insights. Return your response in JSON format matching "
-        "the structure specified below. Do not add any text before or after the JSON block.\n\n"
-        "EXPECTED JSON SCHEMA:\n"
-        "{\n"
-        '  "summary": "A concise paragraph summary of what this website/business is about.",\n'
-        '  "company_details": {\n'
-        '    "name": "Company/Website Name",\n'
-        '    "industry": "Industry sector (e.g., SaaS, E-commerce, Blog, Non-profit)",\n'
-        '    "mission": "Mission statement or core objective if present, otherwise empty string",\n'
-        '    "description": "Short description of the company values and offerings."\n'
-        "  },\n"
-        '  "key_insights": [\n'
-        '    "Key insight 1 (e.g. main product/service details)",\n'
-        '    "Key insight 2 (e.g. target audience)",\n'
-        '    "Key insight 3 (e.g. unique value proposition)"\n'
-        "  ],\n"
-        '  "faqs": [\n'
-        '    {"question": "FAQ Question 1", "answer": "FAQ Answer 1"},\n'
-        '    {"question": "FAQ Question 2", "answer": "FAQ Answer 2"},\n'
-        '    {"question": "FAQ Question 3", "answer": "FAQ Answer 3"}\n'
-        "  ],\n"
-        '  "contact_details": {\n'
-        '    "emails": ["email1@domain.com"],\n'
-        '    "phones": ["+1-234-567-8901"],\n'
-        '    "address": "Physical office address if present, else empty string",\n'
-        '    "social_links": ["https://twitter.com/handle"]\n'
-        "  }\n"
-        "}\n\n"
+        "from a website and extract structural insights.\n\n"
         f"--- WEBSITE SCENARIO TEXT ---\n{sample_text}"
     )
     
@@ -209,20 +211,35 @@ async def analyze_website_content(
     try:
         chat = get_chat_model(provider, api_key, model_name, temperature=0.1)
         messages = [
-            SystemMessage(content="You are a strict data extraction assistant that only outputs JSON."),
+            SystemMessage(content="You are a strict data extraction assistant that extracts structured business insights from website contents."),
             HumanMessage(content=prompt)
         ]
         
-        response = await chat.ainvoke(messages)
-        res_text = response.content.strip()
+        data = None
         
-        # Clean markdown code block wraps if LLM adds them
-        if res_text.startswith("```"):
-            res_text = re.sub(r'^```(?:json)?\n', '', res_text)
-            res_text = re.sub(r'\n```$', '', res_text)
+        # 1. Attempt Pydantic Structured Output
+        try:
+            structured_chat = chat.with_structured_output(WebsiteAnalysisSchema)
+            structured_result = await structured_chat.ainvoke(messages)
+            if structured_result:
+                if isinstance(structured_result, BaseModel):
+                    data = structured_result.model_dump()
+                elif isinstance(structured_result, dict):
+                    data = structured_result
+        except Exception as se:
+            logger.warning(f"Structured output method failed or unsupported by provider: {se}. Falling back to JSON parsing.")
             
-        data = json.loads(res_text.strip())
-        
+        # 2. Standard JSON Fallback if structured output fails
+        if not data:
+            response = await chat.ainvoke(messages)
+            res_text = response.content.strip()
+            
+            if res_text.startswith("```"):
+                res_text = re.sub(r'^```(?:json)?\n', '', res_text)
+                res_text = re.sub(r'\n```$', '', res_text)
+                
+            data = json.loads(res_text.strip())
+            
         # Merge regex-extracted contacts if LLM missed them
         if not data.get("contact_details"):
             data["contact_details"] = {}
