@@ -441,4 +441,4 @@ Passionate about Artificial Intelligence, Machine Learning, Full Stack Developme
 
 ---
 
-⭐ **If you found this project useful, consider giving it a star!**
+ **If you found this project useful, consider giving it a star!**
