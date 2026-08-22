@@ -33,7 +33,13 @@ class Settings(BaseSettings):
     # Default RAG Configuration
     DEFAULT_CHUNK_SIZE: int = 1000
     DEFAULT_CHUNK_OVERLAP: int = 200
+    DEFAULT_PARENT_CHUNK_SIZE: int = 1200
+    DEFAULT_PARENT_CHUNK_OVERLAP: int = 200
+    DEFAULT_CHILD_CHUNK_SIZE: int = 400
+    DEFAULT_CHILD_CHUNK_OVERLAP: int = 50
     DEFAULT_TOP_K: int = 5
+    ENABLE_HYBRID_SEARCH: bool = True
+    ENABLE_PARENT_CHILD: bool = True
     
     # Server configuration
     HOST: str = "127.0.0.1"
