@@ -1,7 +1,7 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, Literal
 from typing import List, Dict, Any, Optional
 
 from app.config import settings
@@ -12,18 +12,18 @@ logger = logging.getLogger("sitemind.router.chat")
 router = APIRouter(prefix="/chat", tags=["chatting"])
 
 class ChatHistoryMessage(BaseModel):
-    role: str # user or assistant
-    content: str
+    role: Literal["user", "assistant", "system"] = Field(..., description="Message sender role")
+    content: str = Field(..., min_length=1, description="Content of the message")
 
 class ChatRequest(BaseModel):
-    task_id: str
-    message: str
-    history: List[ChatHistoryMessage] = []
-    provider: Optional[str] = "local"
-    model_name: Optional[str] = None
-    api_key: Optional[str] = None
-    temperature: Optional[float] = 0.2
-    top_k: Optional[int] = 5
+    task_id: str = Field(..., min_length=1, description="Target website task ID")
+    message: str = Field(..., min_length=1, description="User query message")
+    history: List[ChatHistoryMessage] = Field(default_factory=list, description="Previous conversation turn history")
+    provider: Optional[str] = Field(default="gemini", description="AI provider (gemini, groq, openai, ollama)")
+    model_name: Optional[str] = Field(default=None, description="Specific LLM model identifier")
+    api_key: Optional[str] = Field(default=None, description="Optional custom provider API key")
+    temperature: float = Field(default=0.2, ge=0.0, le=1.0, description="Sampling temperature between 0.0 and 1.0")
+    top_k: int = Field(default=5, ge=1, le=20, description="Top K vector context chunks to retrieve")
 
 @router.post("")
 async def chat_endpoint(request: ChatRequest):

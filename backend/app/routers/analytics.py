@@ -8,10 +8,24 @@ from app.config import settings
 from app.services.crawler import crawl_jobs
 from app.services.analyzer import generate_sitemap_tree, analyze_website_content
 
+from pydantic import BaseModel, Field
+
 logger = logging.getLogger("sitemind.router.analytics")
 router = APIRouter(prefix="/analytics", tags=["analytics"])
 
-@router.get("/{task_id}")
+class AnalyticsStatsModel(BaseModel):
+    total_pages: int = Field(..., description="Total scraped pages")
+    total_chunks: int = Field(..., description="Total document chunks generated")
+    total_characters: int = Field(..., description="Total characters processed")
+    crawl_depth: int = Field(..., description="Crawl depth reached")
+    processing_time: float = Field(..., description="Processing time in seconds")
+
+class AnalyticsResponse(BaseModel):
+    stats: AnalyticsStatsModel
+    sitemap: Dict[str, Any] = Field(default_factory=dict, description="Hierarchical sitemap tree")
+    analysis: Dict[str, Any] = Field(default_factory=dict, description="Extracted structured analysis insights")
+
+@router.get("/{task_id}", response_model=AnalyticsResponse)
 async def get_analytics(
     task_id: str,
     provider: Optional[str] = "local",

@@ -5,7 +5,7 @@ import logging
 import json
 from urllib.parse import urlparse
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List, Dict, Any
 
 from app.config import settings
@@ -16,26 +16,40 @@ logger = logging.getLogger("sitemind.router.crawl")
 router = APIRouter(prefix="/crawl", tags=["crawling"])
 
 class CrawlRequest(BaseModel):
-    url: str
-    max_depth: Optional[int] = None
-    max_pages: Optional[int] = None
-    chunk_size: Optional[int] = None
-    chunk_overlap: Optional[int] = None
-    embedding_provider: Optional[str] = "local"
-    api_key: Optional[str] = None
+    url: str = Field(..., min_length=4, description="Target website URL to crawl")
+    max_depth: Optional[int] = Field(default=None, ge=1, le=10, description="Max depth of links to follow from landing page")
+    max_pages: Optional[int] = Field(default=None, ge=1, le=500, description="Max number of individual HTML pages to scrape")
+    chunk_size: Optional[int] = Field(default=None, ge=100, le=5000, description="Character chunk size for document splitting")
+    chunk_overlap: Optional[int] = Field(default=None, ge=0, le=1000, description="Overlap in characters between consecutive chunks")
+    embedding_provider: Optional[str] = Field(default="local", description="Provider for embedding generation (local, gemini, openai)")
+    api_key: Optional[str] = Field(default=None, description="Optional custom embedding API key")
+
+class CrawlStartResponse(BaseModel):
+    task_id: str = Field(..., description="Deterministic task ID assigned to crawl job")
+    status: str = Field(..., description="Initial job status")
+    message: str = Field(..., description="Human-readable status message")
 
 class CrawlStatusResponse(BaseModel):
-    task_id: str
-    status: str
-    pages_discovered: int
-    pages_indexed_count: int
-    pages_indexed: List[str]
-    current_action: str
-    errors: List[str]
-    logs: List[str]
-    chunks_count: int
-    embeddings_count: int
-    processing_time_sec: float
+    task_id: str = Field(..., description="Task ID")
+    start_url: Optional[str] = Field(default="", description="Start URL of website")
+    status: str = Field(..., description="Current job status")
+    pages_discovered: int = Field(default=0, description="Pages discovered during crawl")
+    pages_indexed_count: int = Field(default=0, description="Number of indexed pages")
+    pages_indexed: List[str] = Field(default_factory=list, description="List of page URLs indexed")
+    current_action: str = Field(default="", description="Description of active operation")
+    errors: List[str] = Field(default_factory=list, description="List of error messages if any")
+    logs: List[str] = Field(default_factory=list, description="Recent execution logs")
+    chunks_count: int = Field(default=0, description="Total chunks generated")
+    embeddings_count: int = Field(default=0, description="Total embeddings generated")
+    processing_time_sec: float = Field(default=0.0, description="Elapsed processing time in seconds")
+
+class SavedWebsiteItem(BaseModel):
+    task_id: str = Field(..., description="Website task ID")
+    url: str = Field(..., description="Target website URL")
+    status: str = Field(..., description="Index status")
+    pages_count: int = Field(..., description="Number of indexed pages")
+    chunks_count: int = Field(..., description="Total document chunks generated")
+    processing_time: float = Field(..., description="Time taken to process in seconds")
 
 def generate_task_id(url: str) -> str:
     # Generate a deterministic alphanumeric task ID based on the URL domain and a hash
@@ -100,7 +114,7 @@ async def background_crawl_and_index(
         job.errors.append(f"Processing failed: {str(e)}")
         job.add_log(f"Process failed: {str(e)}")
 
-@router.post("/start")
+@router.post("/start", response_model=CrawlStartResponse)
 async def start_crawl(request: CrawlRequest):
     # Basic URL sanitation
     url = request.url.strip()
@@ -162,7 +176,7 @@ async def get_status(task_id: str):
             
     return crawl_jobs[task_id].to_dict() | {"task_id": task_id}
 
-@router.get("/list")
+@router.get("/list", response_model=List[SavedWebsiteItem])
 async def list_jobs():
     # Helper to scan saved stores on disk and return them
     import os
