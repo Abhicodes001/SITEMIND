@@ -20,8 +20,11 @@ import {
   Alert,
   AlertTitle,
   useTheme,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  Tooltip
 } from '@mui/material';
+import type { Theme } from '@mui/material';
 import {
   Language,
   AutoAwesome,
@@ -33,7 +36,8 @@ import {
   KeyboardArrowRight,
   TrendingUp,
   Fingerprint,
-  Security
+  Security,
+  Menu
 } from '@mui/icons-material';
 import confetti from 'canvas-confetti';
 
@@ -210,6 +214,16 @@ export const App: React.FC = () => {
     return localStorage.getItem('sitemind_theme') !== 'light';
   });
   
+  // Sidebar open/collapsed state (Gemini style)
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('sitemind_sidebar_open');
+      return saved !== null ? saved === 'true' : true;
+    } catch {
+      return true;
+    }
+  });
+
   // Settings & API Keys state
   const [settings, setSettings] = useState<CrawlSettings>(() => {
     const saved = localStorage.getItem('sitemind_settings');
@@ -245,6 +259,36 @@ export const App: React.FC = () => {
   const activeTaskRef = useRef<string | null>(null);
 
   // Sync state to local storage
+  useEffect(() => {
+    try {
+      localStorage.setItem('sitemind_sidebar_open', String(isSidebarOpen));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [isSidebarOpen]);
+
+  // Global Ctrl+B / Cmd+B keyboard shortcut to toggle sidebar
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is actively typing in input or textarea
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+          // allow shortcut even in inputs with preventDefault
+          e.preventDefault();
+          setIsSidebarOpen(prev => !prev);
+        }
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+        e.preventDefault();
+        setIsSidebarOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('sitemind_theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
@@ -570,9 +614,11 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
-      <Box display="flex" height="100vh" width="100vw" overflow="hidden">
+      <Box display="flex" height="100vh" width="100vw" overflow="hidden" position="relative">
         {/* Sidebar */}
         <Sidebar
+          isOpen={isSidebarOpen}
+          onToggleOpen={() => setIsSidebarOpen(prev => !prev)}
           websites={websites}
           activeTaskId={activeTaskId}
           onSelectWebsite={handleSelectWebsite}
@@ -594,6 +640,43 @@ export const App: React.FC = () => {
           sx={{ backgroundColor: 'background.default', overflow: 'hidden', position: 'relative' }}
         >
           <CanvasBackground isDarkMode={isDarkMode} />
+
+          {/* Gemini-style Floating Expand Sidebar Button when collapsed */}
+          {!isSidebarOpen && (
+            <Tooltip title="Expand menu (Ctrl+B)" placement="right">
+              <IconButton
+                onClick={() => setIsSidebarOpen(true)}
+                sx={{
+                  position: 'absolute',
+                  top: 14,
+                  left: 14,
+                  zIndex: 1200,
+                  width: 38,
+                  height: 38,
+                  borderRadius: '10px',
+                  backgroundColor: (theme: Theme) => theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.9)' : 'rgba(24, 24, 27, 0.85)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  color: 'text.primary',
+                  boxShadow: (theme: Theme) => theme.palette.mode === 'light'
+                    ? '0 4px 14px rgba(0, 0, 0, 0.08)'
+                    : '0 4px 18px rgba(0, 0, 0, 0.5)',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  '&:hover': {
+                    backgroundColor: (theme: Theme) => theme.palette.mode === 'light' ? '#ffffff' : 'rgba(39, 39, 42, 0.95)',
+                    transform: 'scale(1.05)',
+                    borderColor: 'primary.main',
+                    boxShadow: (theme: Theme) => theme.palette.mode === 'light'
+                      ? '0 6px 18px rgba(13, 148, 136, 0.2)'
+                      : '0 6px 20px rgba(0, 242, 254, 0.25)'
+                  }
+                }}
+              >
+                <Menu fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
 
           {/* Main Display routing */}
           {!activeTaskId ? (
@@ -819,7 +902,16 @@ export const App: React.FC = () => {
               sx={{ position: 'relative', zIndex: 1 }}
             >
               {/* Site Details & View Controller Tabs */}
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Box 
+                display="flex" 
+                justifyContent="space-between" 
+                alignItems="center" 
+                mb={2}
+                sx={{ 
+                  pl: !isSidebarOpen ? 5.5 : 0, 
+                  transition: 'padding-left 0.28s cubic-bezier(0.4, 0, 0.2, 1)' 
+                }}
+              >
                 <Box>
                   <Typography variant="h5" fontWeight="bold">
                     {analyticsData?.analysis?.company_details?.name || "Scanned Website"}

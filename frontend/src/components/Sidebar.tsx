@@ -27,11 +27,15 @@ import {
   Storage,
   Language,
   AutoAwesome,
-  Delete
+  Delete,
+  Menu,
+  MenuOpen
 } from '@mui/icons-material';
 import type { SavedWebsite } from '../services/api';
 
 interface SidebarProps {
+  isOpen?: boolean;
+  onToggleOpen?: () => void;
   websites: SavedWebsite[];
   activeTaskId: string | null;
   onSelectWebsite: (taskId: string) => void;
@@ -45,6 +49,8 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
+  isOpen = true,
+  onToggleOpen,
   websites,
   activeTaskId,
   onSelectWebsite,
@@ -59,12 +65,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const theme = useTheme();
 
   return (
-    <Box sx={{ width: 280, flexShrink: 0, height: '100%' }}>
+    <Box 
+      sx={{ 
+        width: isOpen ? 280 : 0, 
+        minWidth: isOpen ? 280 : 0,
+        flexShrink: 0, 
+        height: '100%',
+        transition: 'width 0.28s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+        overflow: 'hidden',
+        position: 'relative',
+        zIndex: 100
+      }}
+    >
       <Box 
         display="flex" 
         flexDirection="column" 
         height="100%"
         sx={{
+          width: 280,
+          minWidth: 280,
+          boxSizing: 'border-box',
           backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(243, 244, 246, 0.7)' : 'rgba(9, 9, 11, 0.4)',
           backdropFilter: 'blur(16px)',
           borderRight: '1px solid',
@@ -72,43 +92,70 @@ export const Sidebar: React.FC<SidebarProps> = ({
           p: 2
         }}
       >
-        {/* Title Logo Section */}
-        <Box display="flex" alignItems="center" gap={1.5} mb={3} px={1}>
-          <Box 
-            display="flex" 
-            justifyContent="center" 
-            alignItems="center"
-            sx={{
-              width: 38,
-              height: 38,
-              borderRadius: '10px',
-              background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-              color: '#09090b',
-              boxShadow: (theme) => theme.palette.mode === 'light'
-                ? '0 4px 12px rgba(13, 148, 136, 0.2)'
-                : '0 4px 15px rgba(0, 242, 254, 0.35)'
-            }}
-          >
-            <AutoAwesome sx={{ fontSize: 20 }} />
-          </Box>
-          <Box>
-            <Typography variant="h6" fontWeight="800" sx={{ letterSpacing: '-0.02em', lineHeight: 1.1, color: 'text.primary' }}>
-              SiteMind AI
-            </Typography>
-            <Typography 
-              variant="caption" 
-              color="text.secondary" 
-              fontWeight="bold"
-              sx={{ 
-                fontFamily: 'monospace', 
-                textTransform: 'uppercase', 
-                letterSpacing: '0.08em', 
-                fontSize: '0.65rem',
-                opacity: 0.8
+        {/* Title Logo & Collapse Button Section (Gemini Style) */}
+        <Box display="flex" alignItems="center" justifyContent="space-between" mb={2.5} px={0.5}>
+          <Box display="flex" alignItems="center" gap={1.2}>
+            {onToggleOpen && (
+              <Tooltip title="Collapse menu (Ctrl+B)" placement="bottom">
+                <IconButton 
+                  onClick={onToggleOpen}
+                  size="small"
+                  sx={{
+                    borderRadius: '10px',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    p: 0.7,
+                    color: 'text.secondary',
+                    transition: 'all 0.2s',
+                    '&:hover': {
+                      color: 'primary.main',
+                      borderColor: 'primary.main',
+                      backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(13, 148, 136, 0.08)' : 'rgba(0, 242, 254, 0.1)'
+                    }
+                  }}
+                >
+                  <Menu fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
+            
+            <Box 
+              display="flex" 
+              justifyContent="center" 
+              alignItems="center"
+              sx={{
+                width: 34,
+                height: 34,
+                borderRadius: '9px',
+                background: (theme) => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+                color: '#09090b',
+                boxShadow: (theme) => theme.palette.mode === 'light'
+                  ? '0 4px 12px rgba(13, 148, 136, 0.2)'
+                  : '0 4px 15px rgba(0, 242, 254, 0.35)'
               }}
             >
-              Neural Web Scraper
-            </Typography>
+              <AutoAwesome sx={{ fontSize: 18 }} />
+            </Box>
+            <Box>
+              <Typography variant="subtitle1" fontWeight="800" sx={{ letterSpacing: '-0.02em', lineHeight: 1.1, color: 'text.primary', fontSize: '0.95rem' }}>
+                SiteMind AI
+              </Typography>
+              <Typography 
+                variant="caption" 
+                color="text.secondary" 
+                fontWeight="bold"
+                sx={{ 
+                  fontFamily: 'monospace', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '0.08em', 
+                  fontSize: '0.62rem',
+                  opacity: 0.8,
+                  display: 'block'
+                }}
+              >
+                Neural Web Scraper
+              </Typography>
+            </Box>
           </Box>
         </Box>
 
