@@ -20,8 +20,8 @@ class Settings(BaseSettings):
     
     # Default Models
     DEFAULT_OPENAI_MODEL: str = "gpt-4o-mini"
-    DEFAULT_GROQ_MODEL: str = "llama-3.3-70b-versatile"
-    DEFAULT_GEMINI_MODEL: str = "gemini-2.0-flash"
+    DEFAULT_GROQ_MODEL: str = "openai/gpt-oss-20b"
+    DEFAULT_GEMINI_MODEL: str = "gemini-3.6-flash"
     DEFAULT_OLLAMA_MODEL: str = "llama3.2"
     DEFAULT_EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
     

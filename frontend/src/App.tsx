@@ -43,7 +43,7 @@ import confetti from 'canvas-confetti';
 
 import getTheme from './theme';
 import Sidebar from './components/Sidebar';
-import SettingsPanel, { DEFAULT_GEMINI_MODEL, DEFAULT_SETTINGS } from './features/Settings';
+import SettingsPanel, { DEFAULT_GEMINI_MODEL, DEFAULT_GROQ_MODEL, DEFAULT_SETTINGS } from './features/Settings';
 import CrawlProgress from './features/CrawlProgress';
 import ChatArea from './features/ChatArea';
 import Dashboard from './features/Dashboard';
@@ -202,9 +202,15 @@ export const App: React.FC = () => {
   const normalizeSettings = (value: CrawlSettings): CrawlSettings => {
     if (
       value.provider === 'gemini' &&
-      (value.modelName === 'gemini-3.5-flash' || value.modelName === 'gemini-2.5-flash' || value.modelName === 'gemini-flash-latest' || !value.modelName)
+      (value.modelName === 'gemini-2.0-flash' || value.modelName === 'gemini-1.5-flash' || value.modelName === 'gemini-2.5-flash' || !value.modelName)
     ) {
       return { ...value, modelName: DEFAULT_GEMINI_MODEL };
+    }
+    if (
+      value.provider === 'groq' &&
+      (value.modelName === 'llama-3.3-70b-versatile' || value.modelName === 'llama-3.1-8b-instant' || !value.modelName)
+    ) {
+      return { ...value, modelName: DEFAULT_GROQ_MODEL };
     }
     return value;
   };

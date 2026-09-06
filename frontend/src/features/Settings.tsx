@@ -15,7 +15,8 @@ import {
 import { RotateLeft } from '@mui/icons-material';
 import type { CrawlSettings } from '../services/api';
 
-export const DEFAULT_GEMINI_MODEL = 'gemini-2.0-flash';
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash';
+export const DEFAULT_GROQ_MODEL = 'openai/gpt-oss-20b';
 
 interface SettingsProps {
   settings: CrawlSettings;
@@ -48,7 +49,7 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
     // Auto-update default model if provider changes
     if (key === 'provider') {
       if (value === 'openai') newSettings.modelName = 'gpt-4o-mini';
-      else if (value === 'groq') newSettings.modelName = 'llama-3.3-70b-versatile';
+      else if (value === 'groq') newSettings.modelName = DEFAULT_GROQ_MODEL;
       else if (value === 'gemini') newSettings.modelName = DEFAULT_GEMINI_MODEL;
       else if (value === 'ollama') newSettings.modelName = 'llama3.2';
       else newSettings.modelName = '';
@@ -61,21 +62,20 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
     onApiKeysChange({ ...apiKeys, [provider]: value });
   };
 
-  const resetToDefault = () => {
-    onChange({ ...DEFAULT_SETTINGS });
-    onApiKeysChange({});
+  const handleReset = () => {
+    onChange(DEFAULT_SETTINGS);
   };
 
   return (
     <Box sx={{ p: 1 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h5" fontWeight="bold">Configuration Settings</Typography>
+        <Typography variant="h6" fontWeight="bold">Configuration & Engine Settings</Typography>
         <Button 
           variant="outlined" 
           size="small" 
-          color="warning" 
+          color="secondary" 
           startIcon={<RotateLeft />} 
-          onClick={resetToDefault}
+          onClick={handleReset}
         >
           Reset Defaults
         </Button>
@@ -98,7 +98,7 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
                   onChange={(e) => handleSettingChange('provider', e.target.value)}
                 >
                   <MenuItem value="gemini">Google Gemini</MenuItem>
-                  <MenuItem value="groq">Groq Llama 3.3</MenuItem>
+                  <MenuItem value="groq">Groq</MenuItem>
                   <MenuItem value="openai">OpenAI GPT-4</MenuItem>
                   <MenuItem value="ollama">Ollama (Local LLM)</MenuItem>
                 </Select>
@@ -117,16 +117,16 @@ export const SettingsPanel: React.FC<SettingsProps> = ({
                     <MenuItem key="o3mini" value="o3-mini">o3-mini (Reasoning)</MenuItem>
                   ]}
                   {settings.provider === 'groq' && [
-                    <MenuItem key="llama70" value="llama-3.3-70b-versatile">llama-3.3-70b (Recommended)</MenuItem>,
-                    <MenuItem key="llama8" value="llama-3.1-8b-instant">llama-3.1-8b-instant</MenuItem>,
-                    <MenuItem key="mixtral" value="mixtral-8x7b-32768">mixtral-8x7b-32768</MenuItem>,
-                    <MenuItem key="gemma2" value="gemma2-9b-it">gemma2-9b-it</MenuItem>
+                    <MenuItem key="groq_gpt20" value="openai/gpt-oss-20b">openai/gpt-oss-20b (Recommended)</MenuItem>,
+                    <MenuItem key="groq_qwen" value="qwen/qwen3.8-27b">qwen/qwen3.8-27b</MenuItem>,
+                    <MenuItem key="groq_gpt120" value="openai/gpt-oss-120b">openai/gpt-oss-120b</MenuItem>,
+                    <MenuItem key="groq_compound" value="groq/compound">groq/compound</MenuItem>
                   ]}
                   {settings.provider === 'gemini' && [
-                    <MenuItem key="gemini20f" value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</MenuItem>,
-                    <MenuItem key="gemini15f" value="gemini-1.5-flash">gemini-1.5-flash</MenuItem>,
-                    <MenuItem key="gemini15p" value="gemini-1.5-pro">gemini-1.5-pro</MenuItem>,
-                    <MenuItem key="gemini20lite" value="gemini-2.0-flash-lite">gemini-2.0-flash-lite</MenuItem>
+                    <MenuItem key="gemini36f" value="gemini-3.6-flash">gemini-3.6-flash (Recommended)</MenuItem>,
+                    <MenuItem key="geminilatest" value="gemini-flash-latest">gemini-flash-latest</MenuItem>,
+                    <MenuItem key="gemini37f" value="gemini-3.7-flash">gemini-3.7-flash</MenuItem>,
+                    <MenuItem key="gemini38f" value="gemini-3.8-flash">gemini-3.8-flash</MenuItem>
                   ]}
                   {settings.provider === 'ollama' && [
                     <MenuItem key="llama32" value="llama3.2">llama3.2 (Recommended)</MenuItem>,
