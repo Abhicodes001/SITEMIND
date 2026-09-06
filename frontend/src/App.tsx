@@ -460,13 +460,12 @@ export const App: React.FC = () => {
     if (!activeTaskId || isChatLoading) return;
     
     const userMsg: ChatMessage = { role: 'user', content: text };
-    const updatedMessages = [...messages, userMsg];
+    const assistantMsg: ChatMessage = { role: 'assistant', content: '', sources: [] };
+    const updatedMessages = [...messages, userMsg, assistantMsg];
+    const aiMsgIndex = updatedMessages.length - 1;
+    
     setMessages(updatedMessages);
     setIsChatLoading(true);
-    
-    // Add stub assistant message that will be populated by chunk streams
-    const aiMsgIndex = updatedMessages.length;
-    setMessages(prev => [...prev, { role: 'assistant', content: '', sources: [] }]);
     
     const apiKey = apiKeys[settings.provider as keyof typeof apiKeys];
     
@@ -478,28 +477,28 @@ export const App: React.FC = () => {
       apiKey,
       (sources) => {
         // Yield Perplexity grounding references
-        setMessages(prev => {
-          const next = [...prev];
-          next[aiMsgIndex].sources = sources;
-          return next;
-        });
+        setMessages(prev =>
+          prev.map((msg, idx) =>
+            idx === aiMsgIndex ? { ...msg, sources } : msg
+          )
+        );
       },
       (token) => {
-        // Stream text token-by-token
-        setMessages(prev => {
-          const next = [...prev];
-          next[aiMsgIndex].content += token;
-          return next;
-        });
+        // Stream text token-by-token immutably
+        setMessages(prev =>
+          prev.map((msg, idx) =>
+            idx === aiMsgIndex ? { ...msg, content: msg.content + token } : msg
+          )
+        );
       },
       (err) => {
         // Stream error handler
         setIsChatLoading(false);
-        setMessages(prev => {
-          const next = [...prev];
-          next[aiMsgIndex].content = `**Error**: ${err}`;
-          return next;
-        });
+        setMessages(prev =>
+          prev.map((msg, idx) =>
+            idx === aiMsgIndex ? { ...msg, content: `**Error**: ${err}` } : msg
+          )
+        );
       },
       () => {
         // Stream completion handler
@@ -534,12 +533,12 @@ export const App: React.FC = () => {
     if (!activeTaskId || isChatLoading) return;
     
     const userMsg: ChatMessage = { role: 'user', content: text };
-    const updatedMessages = [...currentHistory, userMsg];
+    const assistantMsg: ChatMessage = { role: 'assistant', content: '', sources: [] };
+    const updatedMessages = [...currentHistory, userMsg, assistantMsg];
+    const aiMsgIndex = updatedMessages.length - 1;
+    
     setMessages(updatedMessages);
     setIsChatLoading(true);
-    
-    const aiMsgIndex = updatedMessages.length;
-    setMessages(prev => [...prev, { role: 'assistant', content: '', sources: [] }]);
     
     const apiKey = apiKeys[settings.provider as keyof typeof apiKeys];
     
@@ -550,26 +549,26 @@ export const App: React.FC = () => {
       settings,
       apiKey,
       (sources) => {
-        setMessages(prev => {
-          const next = [...prev];
-          next[aiMsgIndex].sources = sources;
-          return next;
-        });
+        setMessages(prev =>
+          prev.map((msg, idx) =>
+            idx === aiMsgIndex ? { ...msg, sources } : msg
+          )
+        );
       },
       (token) => {
-        setMessages(prev => {
-          const next = [...prev];
-          next[aiMsgIndex].content += token;
-          return next;
-        });
+        setMessages(prev =>
+          prev.map((msg, idx) =>
+            idx === aiMsgIndex ? { ...msg, content: msg.content + token } : msg
+          )
+        );
       },
       (err) => {
         setIsChatLoading(false);
-        setMessages(prev => {
-          const next = [...prev];
-          next[aiMsgIndex].content = `**Error**: ${err}`;
-          return next;
-        });
+        setMessages(prev =>
+          prev.map((msg, idx) =>
+            idx === aiMsgIndex ? { ...msg, content: `**Error**: ${err}` } : msg
+          )
+        );
       },
       () => {
         setIsChatLoading(false);

@@ -14,18 +14,25 @@ export const useShortcuts = (shortcuts: ShortcutMapping[]) => {
     const handleKeyDown = (event: KeyboardEvent) => {
       for (const mapping of shortcuts) {
         const matchesKey = event.key.toLowerCase() === mapping.key.toLowerCase();
-        const matchesCtrl = mapping.ctrlKey === undefined || event.ctrlKey === mapping.ctrlKey;
-        const matchesMeta = mapping.metaKey === undefined || event.metaKey === mapping.metaKey;
-        const matchesAlt = mapping.altKey === undefined || event.altKey === mapping.altKey;
-        const matchesShift = mapping.shiftKey === undefined || event.shiftKey === mapping.shiftKey;
         
-        if (matchesKey && (matchesCtrl || matchesMeta) && matchesAlt && matchesShift) {
-          // If focused on an input element, only trigger if it's not a standard input intercept (like typing a letter)
+        const ctrlRequired = mapping.ctrlKey === true;
+        const metaRequired = mapping.metaKey === true;
+        const altRequired = mapping.altKey === true;
+        const shiftRequired = mapping.shiftKey === true;
+
+        const hasCtrlOrMeta = event.ctrlKey || event.metaKey;
+        const matchesCtrlOrMeta = (ctrlRequired || metaRequired)
+          ? hasCtrlOrMeta
+          : !hasCtrlOrMeta;
+
+        const matchesAlt = event.altKey === altRequired;
+        const matchesShift = event.shiftKey === shiftRequired;
+        
+        if (matchesKey && matchesCtrlOrMeta && matchesAlt && matchesShift) {
           const target = event.target as HTMLElement;
           const isInputFocused = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
           
-          // Allow Ctrl+Enter or Ctrl+K even if focused, but skip single letter shortcuts like '/' if focused
-          if (isInputFocused && !mapping.ctrlKey && !mapping.metaKey) {
+          if (isInputFocused && !ctrlRequired && !metaRequired) {
             continue;
           }
           

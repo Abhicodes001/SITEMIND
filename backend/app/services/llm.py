@@ -140,20 +140,18 @@ async def stream_chat_response(
             
     messages.append(HumanMessage(content=query))
     
-    # 4. Generate response from LLM. Some providers stream cumulative chunks
-    # instead of deltas, which duplicates text in the UI. Use one clean response
-    # and send it through the existing SSE token channel.
+    # 4. Generate response from LLM using real-time streaming
     try:
         chat = get_chat_model(provider, api_key, model_name, temperature)
-        response = await chat.ainvoke(messages)
-        text = response.content
-        if isinstance(text, list):
-            text = "".join(
-                item.get("text", "") if isinstance(item, dict) else str(item)
-                for item in text
-            )
-        if isinstance(text, str) and text:
-            yield f"event: token\ndata: {json.dumps({'text': text})}\n\n"
+        async for chunk in chat.astream(messages):
+            text = chunk.content
+            if isinstance(text, list):
+                text = "".join(
+                    item.get("text", "") if isinstance(item, dict) else str(item)
+                    for item in text
+                )
+            if isinstance(text, str) and text:
+                yield f"event: token\ndata: {json.dumps({'text': text})}\n\n"
                 
         yield "event: end\ndata: {}\n\n"
         

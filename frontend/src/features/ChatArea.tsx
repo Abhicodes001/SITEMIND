@@ -119,7 +119,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   useShortcuts(keyboardShortcuts);
 
   const handleSend = () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
     onSendMessage(input.trim());
     setInput('');
   };
