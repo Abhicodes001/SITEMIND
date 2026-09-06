@@ -191,7 +191,7 @@ Content is cleaned.
 ❌ Footer
 ❌ Scripts
 
-Useful Content
+✅ Useful Content
 ```
 
 ---
@@ -317,7 +317,7 @@ SiteMind-AI/
 
 ---
 
-# Installation
+#  Installation
 
 ## Clone Repository
 
@@ -358,7 +358,7 @@ npm run dev
 
 ---
 
-# Environment Variables
+#  Environment Variables
 
 Create a `.env` file.
 
@@ -377,8 +377,7 @@ DATABASE_URL=
 ```
 
 ---
-
-# Future Enhancements
+#  Future Enhancements
 
 - PDF Upload Support
 - Website Comparison
@@ -393,7 +392,7 @@ DATABASE_URL=
 
 ---
 
-# Use Cases
+#  Use Cases
 
 - Students
 - Researchers
@@ -404,12 +403,6 @@ DATABASE_URL=
 - Product Research
 - Company Analysis
 - Educational Websites
-
----
-
-# 📸 Screenshots
-
-Coming Soon...
 
 ---
 
@@ -425,13 +418,13 @@ Contributions are welcome!
 
 ---
 
-#  License
+# 📜 License
 
 This project is licensed under the MIT License.
 
 ---
 
-#  Author
+# 👨‍💻 Author
 
 **Abhishek M Nair**
 
@@ -441,4 +434,4 @@ Passionate about Artificial Intelligence, Machine Learning, Full Stack Developme
 
 ---
 
- **If you found this project useful, consider giving it a star!**
+⭐ **If you found this project useful, consider giving it a star!**
