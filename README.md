@@ -191,7 +191,7 @@ Content is cleaned.
 ❌ Footer
 ❌ Scripts
 
-✅ Useful Content
+Useful Content
 ```
 
 ---
